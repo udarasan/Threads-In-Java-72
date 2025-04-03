@@ -1,0 +1,4 @@
+# Project exclude paths
+/01-Introduction/target/
+/02-Extend-Thread-Class/target/
+/03-Implement-Runnable-Interface/target/
