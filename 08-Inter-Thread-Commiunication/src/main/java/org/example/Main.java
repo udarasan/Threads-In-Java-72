@@ -2,22 +2,31 @@ package org.example;
 
 class A{
     int num;
+    boolean flag=false;
     public synchronized void put(int num){
+        while(flag){
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         System.out.println("PUT : "+num);
         this.num = num;
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        flag=true;
+        notify();
     }
     public synchronized void get(){
-        System.out.println("GET :"+num);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        while(!flag){
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
+        System.out.println("GET :"+num);
+        flag=false;
+        notify();
     }
 }
 class Producer implements Runnable{
@@ -29,9 +38,14 @@ class Producer implements Runnable{
     }
     @Override
     public void run() {
-        int num = 0;
+        int i = 0;
         while(true){
-            a.put(num++);
+            a.put(i++);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
@@ -45,7 +59,14 @@ class Consumer implements Runnable{
     }
     @Override
     public void run() {
-        a.get();
+        while (true){
+            a.get();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
